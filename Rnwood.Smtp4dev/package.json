@@ -16,7 +16,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "BSD",
   "bugs": {
     "url": "https://github.com/rnwood/smtp4dev/issues"
   },
@@ -35,6 +35,7 @@
     "fswatch": "^0.1.4",
     "html-loader": "^0.5.5",
     "postcss-loader": "^2.1.1",
+    "quasar-framework": "^0.15.10",
     "style-loader": "^0.20.2",
     "ts-loader": "^4.0.1",
     "typescript": "^2.7.2",

@@ -1,4 +1,4 @@
-﻿<div class="fillpanel">
+﻿<div >
 
     <el-alert v-if="error" type="error">
         {{error.message}}
@@ -11,7 +11,7 @@
     </template>
 
     <template v-if="html">
-        <iframe class="fill" :srcdoc="html"></iframe>
+        <iframe  :srcdoc="html"></iframe>
     </template>
 
 </div>

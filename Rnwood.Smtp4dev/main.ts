@@ -10,10 +10,10 @@ import Component from "vue-class-component";
 import MessageSummary from "ApiClient/MessageSummary";
 import SessionSummary from "ApiClient/SessionSummary";
 
-import Element from 'element-ui';
+import Quasar from 'quasar-framework/dist/quasar.mat.esm.js';
 import axios from 'axios' 
 
-Vue.use(Element);
+Vue.use(Quasar);
 
 @Component({})
 export default class Main extends Vue {
@@ -31,7 +31,9 @@ export default class Main extends Vue {
 
 }
 
-new Main({
-    el: '#app',
-    components: { messagelist: MessageList, messageview: MessageView, sessionlist: SessionList, sessionview: SessionView }
+Quasar.start(() => {
+    new Main({
+        el: '#app',
+        components: { messagelist: MessageList, messageview: MessageView, sessionlist: SessionList, sessionview: SessionView }
+    });
 });

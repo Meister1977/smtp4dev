@@ -1,4 +1,4 @@
-﻿<div class="messageview fill fillpanel">
+﻿<div class="messageview ">
 
     <el-alert v-if="error" type="error">
         {{error.message}}
@@ -6,26 +6,26 @@
         <el-button v-on:click="loadMessage">Retry</el-button>
     </el-alert>
 
-    <div v-if="messageSummary" v-loading="loading" class="fillpanel h fill">
+    <div v-if="messageSummary" v-loading="loading" class=" h ">
         <div>
             Subject: {{messageSummary.subject}}
         </div>
 
-        <el-tabs value="view" style="height: 100%; width:100%" class="fill">
+        <el-tabs value="view" style="height: 100%; width:100%" >
 
 
-            <el-tab-pane label="View" name="view" class="fillpanel h">
+            <el-tab-pane label="View" name="view" class=" h">
                 <messageviewattachments :message="message" />
-                <messageview-html :message="message" class="fill" />
+                <messageview-html :message="message"  />
             </el-tab-pane>
 
-            <el-tab-pane label="Headers" name="headers" class="fillpanel h">
+            <el-tab-pane label="Headers" name="headers" class=" h">
                 <template v-if="message">
-                    <headers :headers="message.headers" class="fill" />
+                    <headers :headers="message.headers"  />
                 </template>
             </el-tab-pane>
 
-            <el-tab-pane label="Parts" name="parts" class="fillpanel h">
+            <el-tab-pane label="Parts" name="parts" class=" h">
 
                 <template v-if="message">
 
@@ -33,15 +33,15 @@
                     <el-tree :data="message.parts" :props="{label: 'name', children: 'childParts', disabled: false, isLeaf: isLeaf}" @node-click="handleNodeClick" highlight-current default-expand-all></el-tree>
 
 
-                    <div v-if="selectedPart" class="fill fillpanel">
+                    <div v-if="selectedPart" >
 
-                        <el-tabs value="headers" class="fill fillpanel h">
+                        <el-tabs value="headers" class=" h">
                             <el-tab-pane label="Headers" name="headers"><headers :headers="selectedPart.headers" /></el-tab-pane>
 
 
-                            <el-tab-pane label="Source" name="source" class="fill fillpanel">
+                            <el-tab-pane label="Source" name="source" >
 
-                                <messagepartsource class="fill" :messageEntitySummary="selectedPart"></messagepartsource>
+                                <messagepartsource  :messageEntitySummary="selectedPart"></messagepartsource>
                             </el-tab-pane>
 
                         </el-tabs>
