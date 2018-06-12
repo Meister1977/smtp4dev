@@ -65,15 +65,15 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.sessionsGrid = new System.Windows.Forms.DataGridView();
+            this.StartDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clientDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SecureConnection = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.NumberOfMessages = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sessionBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.viewSessionButton = new System.Windows.Forms.Button();
             this.deleteSessionButton = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.StartDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clientDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SecureConnection = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.NumberOfMessages = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.trayIconContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messageGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.messageBindingSource)).BeginInit();
@@ -184,9 +184,9 @@
             this.messageGrid.Size = new System.Drawing.Size(494, 197);
             this.messageGrid.TabIndex = 1;
             this.messageGrid.VirtualMode = true;
-            this.messageGrid.DoubleClick += new System.EventHandler(this.messageGrid_DoubleClick);
             this.messageGrid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.messageGrid_CellFormatting);
             this.messageGrid.SelectionChanged += new System.EventHandler(this.messageGrid_SelectionChanged);
+            this.messageGrid.DoubleClick += new System.EventHandler(this.messageGrid_DoubleClick);
             // 
             // Recieved
             // 
@@ -195,7 +195,7 @@
             this.Recieved.HeaderText = "Received";
             this.Recieved.Name = "Recieved";
             this.Recieved.ReadOnly = true;
-            this.Recieved.Width = 77;
+            this.Recieved.Width = 75;
             // 
             // subjectDataGridViewTextBoxColumn
             // 
@@ -503,6 +503,41 @@
             this.sessionsGrid.TabIndex = 0;
             this.sessionsGrid.SelectionChanged += new System.EventHandler(this.sessionsGrid_SelectionChanged);
             // 
+            // StartDate
+            // 
+            this.StartDate.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StartDate.DataPropertyName = "StartDate";
+            this.StartDate.HeaderText = "Date/Time";
+            this.StartDate.Name = "StartDate";
+            this.StartDate.ReadOnly = true;
+            this.StartDate.Width = 81;
+            // 
+            // clientDataGridViewTextBoxColumn
+            // 
+            this.clientDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.clientDataGridViewTextBoxColumn.DataPropertyName = "Client";
+            this.clientDataGridViewTextBoxColumn.HeaderText = "Client";
+            this.clientDataGridViewTextBoxColumn.Name = "clientDataGridViewTextBoxColumn";
+            this.clientDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // SecureConnection
+            // 
+            this.SecureConnection.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.SecureConnection.DataPropertyName = "SecureConnection";
+            this.SecureConnection.HeaderText = "Secure";
+            this.SecureConnection.Name = "SecureConnection";
+            this.SecureConnection.ReadOnly = true;
+            this.SecureConnection.Width = 45;
+            // 
+            // NumberOfMessages
+            // 
+            this.NumberOfMessages.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.NumberOfMessages.DataPropertyName = "NumberOfMessages";
+            this.NumberOfMessages.HeaderText = "No of Msgs";
+            this.NumberOfMessages.Name = "NumberOfMessages";
+            this.NumberOfMessages.ReadOnly = true;
+            this.NumberOfMessages.Width = 89;
+            // 
             // sessionBindingSource
             // 
             this.sessionBindingSource.DataSource = typeof(Rnwood.Smtp4dev.SessionViewModel);
@@ -555,41 +590,6 @@
             this.panel2.Size = new System.Drawing.Size(514, 264);
             this.panel2.TabIndex = 2;
             // 
-            // StartDate
-            // 
-            this.StartDate.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.StartDate.DataPropertyName = "StartDate";
-            this.StartDate.HeaderText = "Date/Time";
-            this.StartDate.Name = "StartDate";
-            this.StartDate.ReadOnly = true;
-            this.StartDate.Width = 83;
-            // 
-            // clientDataGridViewTextBoxColumn
-            // 
-            this.clientDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.clientDataGridViewTextBoxColumn.DataPropertyName = "Client";
-            this.clientDataGridViewTextBoxColumn.HeaderText = "Client";
-            this.clientDataGridViewTextBoxColumn.Name = "clientDataGridViewTextBoxColumn";
-            this.clientDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // SecureConnection
-            // 
-            this.SecureConnection.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.SecureConnection.DataPropertyName = "SecureConnection";
-            this.SecureConnection.HeaderText = "Secure";
-            this.SecureConnection.Name = "SecureConnection";
-            this.SecureConnection.ReadOnly = true;
-            this.SecureConnection.Width = 47;
-            // 
-            // NumberOfMessages
-            // 
-            this.NumberOfMessages.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.NumberOfMessages.DataPropertyName = "NumberOfMessages";
-            this.NumberOfMessages.HeaderText = "No of Msgs";
-            this.NumberOfMessages.Name = "NumberOfMessages";
-            this.NumberOfMessages.ReadOnly = true;
-            this.NumberOfMessages.Width = 91;
-            // 
             // MainForm
             // 
             this.AcceptButton = this.viewButton;
@@ -603,10 +603,11 @@
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "smtp4dev";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             this.VisibleChanged += new System.EventHandler(this.MainForm_VisibleChanged);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.trayIconContextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.messageGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.messageBindingSource)).EndInit();

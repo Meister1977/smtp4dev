@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -27,6 +26,8 @@ namespace Rnwood.Smtp4dev
         private bool _quitting;
         private Server _server;
 
+        private readonly string _tempFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\temp";
+
         public MainForm()
         {
             InitializeComponent();
@@ -37,6 +38,8 @@ namespace Rnwood.Smtp4dev
 
             Icon = Resources.ListeningIcon;
             trayIcon.Icon = Resources.NotListeningIcon;
+
+            Directory.CreateDirectory(_tempFolder);
         }
 
         public MessageViewModel SelectedMessage
@@ -215,12 +218,12 @@ namespace Rnwood.Smtp4dev
 
         private void ViewMessage(MessageViewModel message)
         {
-            var tempFiles = new TempFileCollection();
-            var msgFile = new FileInfo(tempFiles.AddExtension("eml"));
+            var tmpFile = Path.Combine(_tempFolder, Path.GetRandomFileName() + ".eml");
+            var msgFile = new FileInfo(tmpFile);
             message.SaveToFile(msgFile);
 
             if (Registry.ClassesRoot.OpenSubKey(".eml", false) == null ||
-                string.IsNullOrEmpty((string) Registry.ClassesRoot.OpenSubKey(".eml", false).GetValue(null)))
+                string.IsNullOrEmpty((string) Registry.ClassesRoot.OpenSubKey(".eml", false)?.GetValue(null)))
                 switch (MessageBox.Show(this,
                     "You don't appear to have a viewer application associated with .eml files!\nWould you like to download Windows Live Mail (free from live.com website)?",
                     "View Message", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
@@ -275,6 +278,20 @@ namespace Rnwood.Smtp4dev
 
         private void Quit()
         {
+
+                var di = new DirectoryInfo(_tempFolder);
+            foreach (var file in di.GetFiles())
+            {
+                try
+                {
+                    file.Delete();
+                }
+                catch
+                {
+                    //Cleanup
+                }
+            }
+
             if (_server.IsRunning) StopServer();
             trayIcon.Visible = false;
             _quitting = true;
@@ -441,6 +458,11 @@ namespace Rnwood.Smtp4dev
                     WindowState = FormWindowState.Minimized;
                     e.Cancel = true;
                 }
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
