@@ -57,15 +57,6 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SolutionInfo.cs">
@@ -82,13 +73,13 @@
     <Compile Include="Verbs\RcptToVerbTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Rnwood.SmtpServer\Rnwood.SmtpServer.csproj">
-      <Project>{C5BBE7C2-0EA0-4E50-95FF-BF07EA1B93FF}</Project>
-      <Name>Rnwood.SmtpServer</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Rnwood.SmtpServer\Rnwood.SmtpServer.csproj">
+      <Project>{c5bbe7c2-0ea0-4e50-95ff-bf07ea1b93ff}</Project>
+      <Name>Rnwood.SmtpServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

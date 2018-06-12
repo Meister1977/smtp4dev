@@ -3,3 +3,6 @@
 bin
 obj
 .vs
+.vs/
+Rnwood.Smtp4dev/node_modules/.bin/
+Rnwood.Smtp4dev/node_modules/
