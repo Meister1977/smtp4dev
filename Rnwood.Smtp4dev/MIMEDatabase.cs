@@ -13,12 +13,10 @@ namespace Rnwood.Smtp4dev
         {
             mimeType = mimeType.ToLower();
 
-            RegistryKey key = Registry.ClassesRoot.OpenSubKey("MIME\\Database\\Content Type", false);
+            var key = Registry.ClassesRoot.OpenSubKey("MIME\\Database\\Content Type", false);
 
             if (key.GetSubKeyNames().Contains(mimeType))
-            {
                 return (string) key.OpenSubKey(mimeType, false).GetValue("Extension");
-            }
 
             return null;
         }

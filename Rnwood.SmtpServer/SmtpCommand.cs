@@ -1,9 +1,8 @@
 ﻿#region
 
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 
 #endregion
 
@@ -19,7 +18,7 @@ namespace Rnwood.SmtpServer
 
             if (!string.IsNullOrEmpty(text))
             {
-                Match match = COMMANDREGEX.Match(text);
+                var match = COMMANDREGEX.Match(text);
 
                 if (match.Success)
                 {
@@ -35,13 +34,23 @@ namespace Rnwood.SmtpServer
             IsEmpty = true;
         }
 
+        public string Text { get; }
+
+        public string ArgumentsText { get; }
+
+        public string[] Arguments { get; }
+
+        public string Verb { get; }
+
+        public bool IsValid { get; }
+        public bool IsEmpty { get; }
+
         private string[] ParseArguments(string argumentsText)
         {
-            int ltCount = 0;
-            List<string> arguments = new List<string>();
-            StringBuilder currentArgument = new StringBuilder();
-            foreach (char character in argumentsText)
-            {
+            var ltCount = 0;
+            var arguments = new List<string>();
+            var currentArgument = new StringBuilder();
+            foreach (var character in argumentsText)
                 switch (character)
                 {
                     case '<':
@@ -61,28 +70,15 @@ namespace Rnwood.SmtpServer
                         {
                             goto default;
                         }
+
                         break;
                     default:
                         currentArgument.Append(character);
                         break;
                 }
-            }
 
-            if (currentArgument.Length != 0)
-            {
-                arguments.Add(currentArgument.ToString());
-            }
+            if (currentArgument.Length != 0) arguments.Add(currentArgument.ToString());
             return arguments.ToArray();
         }
-        public string Text { get; private set; }
-
-        public string ArgumentsText { get; private set; }
-
-        public string[] Arguments { get; private set; }
-
-        public string Verb { get; private set; }
-
-        public bool IsValid { get; private set; }
-        public bool IsEmpty { get; private set; }
     }
 }

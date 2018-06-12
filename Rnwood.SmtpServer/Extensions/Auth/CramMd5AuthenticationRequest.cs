@@ -9,10 +9,10 @@
             Challenge = challenge;
         }
 
-        public string Username { get; private set; }
+        public string Username { get; }
 
-        public string ChallengeResponse { get; private set; }
+        public string ChallengeResponse { get; }
 
-        public string Challenge { get; private set; }
+        public string Challenge { get; }
     }
 }

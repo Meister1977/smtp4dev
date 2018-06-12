@@ -19,15 +19,17 @@ namespace Rnwood.SmtpServer
             Behaviour = behaviour;
         }
 
-        public IServerBehaviour Behaviour { get; private set; }
-
         /// <summary>
-        /// Gets or sets a value indicating whether the server is currently running.
+        ///     Gets or sets a value indicating whether the server is currently running.
         /// </summary>
         public bool IsRunning { get; private set; }
 
+        public int PortNumber => ((IPEndPoint) _listener.LocalEndpoint).Port;
+
+        public IServerBehaviour Behaviour { get; }
+
         /// <summary>
-        /// Runs the server synchronously. This method blocks until the server is stopped.
+        ///     Runs the server synchronously. This method blocks until the server is stopped.
         /// </summary>
         public void Run()
         {
@@ -42,14 +44,6 @@ namespace Rnwood.SmtpServer
             Core();
         }
 
-        public int PortNumber
-        {
-            get
-            {
-                return ((IPEndPoint)_listener.LocalEndpoint).Port;
-            }
-        }
-
         private void Core()
         {
             _coreThread = Thread.CurrentThread;
@@ -58,7 +52,7 @@ namespace Rnwood.SmtpServer
             {
                 while (true)
                 {
-                    TcpClient tcpClient = _listener.AcceptTcpClient();
+                    var tcpClient = _listener.AcceptTcpClient();
                     new Thread(ConnectionThreadWork).Start(tcpClient);
                 }
             }
@@ -76,8 +70,8 @@ namespace Rnwood.SmtpServer
         }
 
         /// <summary>
-        /// Runs the server asynchronously. This method returns once the server has been started.
-        /// To stop the server call the <see cref="Stop()"/> method.
+        ///     Runs the server asynchronously. This method returns once the server has been started.
+        ///     To stop the server call the <see cref="Stop()" /> method.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">if the server is already running.</exception>
         public void Start()
@@ -95,15 +89,12 @@ namespace Rnwood.SmtpServer
 
 
         /// <summary>
-        /// Stops the running server. Any existing connections are continued.
+        ///     Stops the running server. Any existing connections are continued.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">if the server is not running.</exception>
         public void Stop()
         {
-            if (!IsRunning)
-            {
-                throw new InvalidOperationException("Not running");
-            }
+            if (!IsRunning) throw new InvalidOperationException("Not running");
 
             IsRunning = false;
             _listener.Stop();
@@ -113,7 +104,7 @@ namespace Rnwood.SmtpServer
 
         private void ConnectionThreadWork(object tcpClient)
         {
-            Connection connection = new Connection(this, (TcpClient) tcpClient);
+            var connection = new Connection(this, (TcpClient) tcpClient);
             connection.Start();
         }
     }

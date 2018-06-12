@@ -1,14 +1,13 @@
 ﻿#region
 
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using anmar.SharpMimeTools;
 using Microsoft.Win32;
-using System.Collections.Specialized;
-using System.Collections;
 
 #endregion
 
@@ -25,7 +24,7 @@ namespace Rnwood.Smtp4dev.MessageInspector
 
         public bool IsSelected
         {
-            get { return _isSelected; }
+            get => _isSelected;
 
             set
             {
@@ -35,7 +34,7 @@ namespace Rnwood.Smtp4dev.MessageInspector
         }
 
 
-        public SharpMimeMessage Message { get; private set; }
+        public SharpMimeMessage Message { get; }
 
         public MessageViewModel[] Children
         {
@@ -44,54 +43,30 @@ namespace Rnwood.Smtp4dev.MessageInspector
 
         public HeaderViewModel[] Headers
         {
-            get {
-                return Message.Header.Cast<DictionaryEntry>().Select(de => new HeaderViewModel((string) de.Key, (string)de.Value)).ToArray(); }
+            get
+            {
+                return Message.Header.Cast<DictionaryEntry>()
+                    .Select(de => new HeaderViewModel((string) de.Key, (string) de.Value)).ToArray();
+            }
         }
 
-        public string Data
-        {
-            get { return Message.Header.RawHeaders + "\r\n\r\n" + Message.Body; }
-        }
+        public string Data => Message.Header.RawHeaders + "\r\n\r\n" + Message.Body;
 
-        public string Body
-        {
-            get { return Message.BodyDecoded; }
-        }
+        public string Body => Message.BodyDecoded;
 
-        public string Type
-        {
-            get { return Message.Header.TopLevelMediaType + "/" + Message.Header.SubType; }
-        }
+        public string Type => Message.Header.TopLevelMediaType + "/" + Message.Header.SubType;
 
-        public long Size
-        {
-            get { return Message.Size; }
-        }
+        public long Size => Message.Size;
 
-        public string Disposition
-        {
-            get { return Message.Header.ContentDisposition; }
-        }
+        public string Disposition => Message.Header.ContentDisposition;
 
-        public string Encoding
-        {
-            get { return Message.Header.ContentTransferEncoding; }
-        }
+        public string Encoding => Message.Header.ContentTransferEncoding;
 
-        public string Name
-        {
-            get { return Message.Name ?? "Unnamed" + ": " + MimeType + " (" + Message.Size + " bytes)"; }
-        }
+        public string Name => Message.Name ?? "Unnamed" + ": " + MimeType + " (" + Message.Size + " bytes)";
 
-        protected string MimeType
-        {
-            get { return Message.Header.TopLevelMediaType + "/" + Message.Header.SubType; }
-        }
+        protected string MimeType => Message.Header.TopLevelMediaType + "/" + Message.Header.SubType;
 
-        public string Subject
-        {
-            get { return Message.Header.Subject; }
-        }
+        public string Subject => Message.Header.Subject;
 
         #region INotifyPropertyChanged Members
 
@@ -101,40 +76,33 @@ namespace Rnwood.Smtp4dev.MessageInspector
 
         public void Save()
         {
-            SaveFileDialog dialog = new SaveFileDialog();
+            var dialog = new SaveFileDialog();
 
-            string filename = (Message.Name ?? "Unnamed");
+            var filename = Message.Name ?? "Unnamed";
 
             if (string.IsNullOrEmpty(Path.GetExtension(Message.Name)))
-            {
-                filename = filename + (MIMEDatabase.GetExtension(MimeType));
-            }
+                filename = filename + MIMEDatabase.GetExtension(MimeType);
 
             dialog.FileName = filename;
             dialog.Filter = "File (*.*)|*.*";
 
             if (dialog.ShowDialog() == true)
-            {
-                using (FileStream stream = File.OpenWrite(dialog.FileName))
+                using (var stream = File.OpenWrite(dialog.FileName))
                 {
                     Message.DumpBody(stream);
                 }
-            }
         }
 
         public void View()
         {
-            string extn = Path.GetExtension(Message.Name ?? "Unnamed");
+            var extn = Path.GetExtension(Message.Name ?? "Unnamed");
 
-            if (string.IsNullOrEmpty(extn))
-            {
-                extn = MIMEDatabase.GetExtension(MimeType) ?? ".part";
-            }
+            if (string.IsNullOrEmpty(extn)) extn = MIMEDatabase.GetExtension(MimeType) ?? ".part";
 
-            TempFileCollection tempFiles = new TempFileCollection();
-            FileInfo msgFile = new FileInfo(tempFiles.AddExtension(extn.TrimStart('.')));
+            var tempFiles = new TempFileCollection();
+            var msgFile = new FileInfo(tempFiles.AddExtension(extn.TrimStart('.')));
 
-            using (FileStream stream = msgFile.OpenWrite())
+            using (var stream = msgFile.OpenWrite())
             {
                 Message.DumpBody(stream);
             }
@@ -144,10 +112,7 @@ namespace Rnwood.Smtp4dev.MessageInspector
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
@@ -160,7 +125,7 @@ namespace Rnwood.Smtp4dev.MessageInspector
             Value = value;
         }
 
-        public string Key { get; private set; }
-        public string Value { get; private set; }
+        public string Key { get; }
+        public string Value { get; }
     }
 }

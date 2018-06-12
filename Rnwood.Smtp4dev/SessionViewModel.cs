@@ -18,35 +18,20 @@ namespace Rnwood.Smtp4dev
             Session = session;
         }
 
-        public ISession Session { get; private set; }
+        public ISession Session { get; }
 
-        public bool SecureConnection
-        {
-            get
-            {
-                return Session.SecureConnection;
-            }
-        }
+        public bool SecureConnection => Session.SecureConnection;
 
-        public string Client
-        {
-            get { return Session.ClientAddress.ToString(); }
-        }
+        public string Client => Session.ClientAddress.ToString();
 
-        public int NumberOfMessages
-        {
-            get { return Session.Messages.Count; }
-        }
+        public int NumberOfMessages => Session.Messages.Count;
 
-        public DateTime StartDate
-        {
-            get { return Session.StartDate; }
-        }
+        public DateTime StartDate => Session.StartDate;
 
         public void ViewLog()
         {
-            TempFileCollection tempFiles = new TempFileCollection();
-            FileInfo msgFile = new FileInfo(tempFiles.AddExtension("txt"));
+            var tempFiles = new TempFileCollection();
+            var msgFile = new FileInfo(tempFiles.AddExtension("txt"));
             File.WriteAllText(msgFile.FullName, Session.Log, Encoding.ASCII);
             Process.Start(msgFile.FullName);
         }

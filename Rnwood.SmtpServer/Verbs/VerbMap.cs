@@ -18,13 +18,9 @@ namespace Rnwood.SmtpServer.Verbs
 
         public IVerb GetVerbProcessor(string verb)
         {
-            foreach (KeyValuePair<string, IVerb> processorEntry in _processorVerbs)
-            {
+            foreach (var processorEntry in _processorVerbs)
                 if (string.Equals(processorEntry.Key, verb, StringComparison.InvariantCultureIgnoreCase))
-                {
                     return processorEntry.Value;
-                }
-            }
 
             return null;
         }

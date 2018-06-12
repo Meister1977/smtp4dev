@@ -7,9 +7,6 @@
 
     public interface IExtensionProcessor
     {
-        string[] EHLOKeywords
-        {
-            get;
-        }
+        string[] EHLOKeywords { get; }
     }
 }

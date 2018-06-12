@@ -20,18 +20,15 @@ namespace Rnwood.SmtpServer.Extensions
         {
             public EightBitMimeExtensionProcessor(IConnection connection)
             {
-                EightBitMimeDataVerb verb = new EightBitMimeDataVerb();
+                var verb = new EightBitMimeDataVerb();
                 connection.VerbMap.SetVerbProcessor("DATA", verb);
 
-                MailVerb mailVerbProcessor = connection.MailVerb;
-                MailFromVerb mailFromProcessor = mailVerbProcessor.FromSubVerb;
+                var mailVerbProcessor = connection.MailVerb;
+                var mailFromProcessor = mailVerbProcessor.FromSubVerb;
                 mailFromProcessor.ParameterProcessorMap.SetProcessor("BODY", verb);
             }
 
-            public string[] EHLOKeywords
-            {
-                get { return new[] {"8BITMIME"}; }
-            }
+            public string[] EHLOKeywords => new[] {"8BITMIME"};
         }
 
         #endregion
@@ -48,19 +45,13 @@ namespace Rnwood.SmtpServer.Extensions
             if (key.Equals("BODY", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (value.Equals("8BITMIME", StringComparison.InvariantCultureIgnoreCase))
-                {
                     _eightBitMessage = true;
-                }
                 else if (value.Equals("7BIT", StringComparison.InvariantCultureIgnoreCase))
-                {
                     _eightBitMessage = false;
-                }
                 else
-                {
                     throw new SmtpServerException(
                         new SmtpResponse(StandardSmtpResponseCode.SyntaxErrorInCommandArguments,
-                                         "BODY parameter value invalid - must be either 7BIT or 8BITMIME"));
-                }
+                            "BODY parameter value invalid - must be either 7BIT or 8BITMIME"));
             }
         }
 
@@ -68,10 +59,7 @@ namespace Rnwood.SmtpServer.Extensions
 
         public override void Process(IConnection connection, SmtpCommand command)
         {
-            if (_eightBitMessage)
-            {
-                connection.SetReaderEncoding(Encoding.Default);
-            }
+            if (_eightBitMessage) connection.SetReaderEncoding(Encoding.Default);
 
             try
             {
@@ -79,10 +67,7 @@ namespace Rnwood.SmtpServer.Extensions
             }
             finally
             {
-                if (_eightBitMessage)
-                {
-                    connection.SetReaderEncodingToDefault();
-                }
+                if (_eightBitMessage) connection.SetReaderEncodingToDefault();
             }
         }
     }

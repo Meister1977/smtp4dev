@@ -25,9 +25,11 @@ namespace Rnwood.Smtp4dev
 
             ipAddressCombo.DataSource =
                 new[] {IPAddress.Any}.Concat(
-                    NetworkInterface.GetAllNetworkInterfaces().SelectMany(ni => ni.GetIPProperties().UnicastAddresses).
-                        Where(ua => ua.Address.AddressFamily == AddressFamily.InterNetwork).Select(ua => ua.Address)).
-                    ToList();
+                        NetworkInterface.GetAllNetworkInterfaces()
+                            .SelectMany(ni => ni.GetIPProperties().UnicastAddresses)
+                            .Where(ua => ua.Address.AddressFamily == AddressFamily.InterNetwork)
+                            .Select(ua => ua.Address))
+                    .ToList();
             ipAddressCombo.SelectedItem = IPAddress.Parse(Settings.Default.IPAddress);
         }
 
@@ -35,7 +37,7 @@ namespace Rnwood.Smtp4dev
         private void button2_Click(object sender, EventArgs e)
         {
             RegistrySettings.StartOnLogin = checkBox3.Checked;
-            Settings.Default.IPAddress = (ipAddressCombo.SelectedItem).ToString();
+            Settings.Default.IPAddress = ipAddressCombo.SelectedItem.ToString();
             Settings.Default.Save();
             DialogResult = DialogResult.OK;
         }
@@ -71,23 +73,15 @@ namespace Rnwood.Smtp4dev
         {
             UpdateControlStatus();
 
-            if (!checkBox6.Checked)
-            {
-                checkBox1.Checked = false;
-            }
+            if (!checkBox6.Checked) checkBox1.Checked = false;
 
-            if (checkBox4.Checked)
-            {
-                checkBox7.Checked = false;
-            }
+            if (checkBox4.Checked) checkBox7.Checked = false;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             if (openSSLCertDialog.ShowDialog() == DialogResult.OK)
-            {
                 Settings.Default.SSLCertificatePath = openSSLCertDialog.FileName;
-            }
         }
     }
 }

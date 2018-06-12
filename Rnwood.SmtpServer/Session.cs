@@ -29,10 +29,7 @@ namespace Rnwood.SmtpServer
 
         public bool SecureConnection { get; set; }
 
-        public string Log
-        {
-            get { return _log.ToString(); }
-        }
+        public string Log => _log.ToString();
 
         public List<Message> Messages { get; set; }
 

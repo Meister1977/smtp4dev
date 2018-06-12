@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 using Rnwood.SmtpServer.Verbs;
 
 #endregion
@@ -16,21 +15,21 @@ namespace Rnwood.SmtpServer
             if (connection.CurrentMessage == null)
             {
                 connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.BadSequenceOfCommands,
-                                                                   "Bad sequence of commands"));
+                    "Bad sequence of commands"));
                 return;
             }
 
             connection.CurrentMessage.SecureConnection = connection.Session.SecureConnection;
             connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.StartMailInputEndWithDot,
-                                                               "End message with period"));
+                "End message with period"));
 
-            using (StreamWriter writer = new StreamWriter(connection.CurrentMessage.GetData(true), connection.ReaderEncoding))
+            using (var writer = new StreamWriter(connection.CurrentMessage.GetData(true), connection.ReaderEncoding))
             {
-                bool firstLine = true;
+                var firstLine = true;
 
                 do
                 {
-                    string line = connection.ReadLine();
+                    var line = connection.ReadLine();
 
                     if (line != ".")
                     {
@@ -47,18 +46,17 @@ namespace Rnwood.SmtpServer
                     }
 
                     firstLine = false;
-
                 } while (true);
 
                 writer.Flush();
-                long? maxMessageSize =
+                var maxMessageSize =
                     connection.Server.Behaviour.GetMaximumMessageSize(connection);
 
                 if (maxMessageSize.HasValue && writer.BaseStream.Length > maxMessageSize.Value)
                 {
                     connection.WriteResponse(
                         new SmtpResponse(StandardSmtpResponseCode.ExceededStorageAllocation,
-                                         "Message exceeds fixed size limit"));
+                            "Message exceeds fixed size limit"));
                 }
                 else
                 {
@@ -67,17 +65,13 @@ namespace Rnwood.SmtpServer
                     connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.OK, "Mail accepted"));
                     connection.CommitMessage();
                 }
-
             }
         }
 
         protected virtual string ProcessLine(string line)
         {
             //Remove escaping of end of message character
-            if (line.StartsWith("."))
-            {
-                line = line.Remove(0, 1);
-            }
+            if (line.StartsWith(".")) line = line.Remove(0, 1);
             return line;
         }
     }

@@ -24,7 +24,19 @@ namespace Rnwood.SmtpServer.Extensions
                 Connection.MailVerb.FromSubVerb.ParameterProcessorMap.SetProcessor("SIZE", this);
             }
 
-            public IConnection Connection { get; private set; }
+            public IConnection Connection { get; }
+
+            public string[] EHLOKeywords
+            {
+                get
+                {
+                    var maxMessageSize = Connection.Server.Behaviour.GetMaximumMessageSize(Connection);
+
+                    if (maxMessageSize.HasValue)
+                        return new[] {$"SIZE={maxMessageSize.Value}"};
+                    return new[] {"SIZE"};
+                }
+            }
 
             #region IParameterProcessor Members
 
@@ -36,14 +48,12 @@ namespace Rnwood.SmtpServer.Extensions
 
                     if (int.TryParse(value, out messageSize) && messageSize > 0)
                     {
-                        long? maxMessageSize = Connection.Server.Behaviour.GetMaximumMessageSize(Connection);
+                        var maxMessageSize = Connection.Server.Behaviour.GetMaximumMessageSize(Connection);
 
                         if (maxMessageSize.HasValue && messageSize > maxMessageSize)
-                        {
                             throw new SmtpServerException(
                                 new SmtpResponse(StandardSmtpResponseCode.ExceededStorageAllocation,
-                                                 "Message exceeds fixes size limit"));
-                        }
+                                    "Message exceeds fixes size limit"));
                     }
                     else
                     {
@@ -53,23 +63,6 @@ namespace Rnwood.SmtpServer.Extensions
             }
 
             #endregion
-
-            public string[] EHLOKeywords
-            {
-                get
-                {
-                    long? maxMessageSize = Connection.Server.Behaviour.GetMaximumMessageSize(Connection);
-
-                    if (maxMessageSize.HasValue)
-                    {
-                        return new[] {string.Format("SIZE={0}", maxMessageSize.Value)};
-                    }
-                    else
-                    {
-                        return new[] {"SIZE"};
-                    }
-                }
-            }
         }
 
         #endregion

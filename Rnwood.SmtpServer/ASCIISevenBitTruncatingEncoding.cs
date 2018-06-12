@@ -1,18 +1,17 @@
-using System;
-using System.Text;
 using System.Linq;
+using System.Text;
 
 namespace Rnwood.SmtpServer
 {
     public class ASCIISevenBitTruncatingEncoding : Encoding
     {
+        private readonly Encoding _asciiEncoding;
+
         public ASCIISevenBitTruncatingEncoding()
         {
-            _asciiEncoding = Encoding.GetEncoding("ASCII", new EncodingFallback(),
-                                                  new DecodingFallback());
+            _asciiEncoding = GetEncoding("ASCII", new EncodingFallback(),
+                new DecodingFallback());
         }
-
-        private Encoding _asciiEncoding;
 
         public override int GetByteCount(char[] chars, int index, int count)
         {
@@ -44,20 +43,22 @@ namespace Rnwood.SmtpServer
             return _asciiEncoding.GetMaxCharCount(byteCount);
         }
 
-        class EncodingFallback : EncoderFallback
+        private class EncodingFallback : EncoderFallback
         {
-            public override int MaxCharCount
-            {
-                get { return 1; }
-            }
+            public override int MaxCharCount => 1;
 
             public override EncoderFallbackBuffer CreateFallbackBuffer()
             {
                 return new Buffer();
             }
 
-            class Buffer : EncoderFallbackBuffer
+            private class Buffer : EncoderFallbackBuffer
             {
+                private char _char;
+                private bool _charRead;
+
+                public override int Remaining => !_charRead ? 1 : 0;
+
                 public override bool Fallback(char charUnknown, int index)
                 {
                     _char = FallbackChar(charUnknown);
@@ -74,7 +75,7 @@ namespace Rnwood.SmtpServer
 
                 private char FallbackChar(char charUnknown)
                 {
-                   return (char)(charUnknown & 127);
+                    return (char) (charUnknown & 127);
                 }
 
                 public override char GetNextChar()
@@ -98,24 +99,12 @@ namespace Rnwood.SmtpServer
 
                     return false;
                 }
-
-                private char _char;
-                private bool _charRead;
-
-                public override int Remaining
-                {
-                    get { return !_charRead ? 1 : 0; }
-                }
             }
-
         }
 
-        class DecodingFallback : DecoderFallback
+        private class DecodingFallback : DecoderFallback
         {
-            public override int MaxCharCount
-            {
-                get { return 1; }
-            }
+            public override int MaxCharCount => 1;
 
             public override DecoderFallbackBuffer CreateFallbackBuffer()
             {
@@ -129,14 +118,11 @@ namespace Rnwood.SmtpServer
                 private int _fallbackIndex;
                 private string _fallbackString;
 
-                public override int Remaining
-                {
-                    get { return _fallbackString.Length - _fallbackIndex; }
-                }
+                public override int Remaining => _fallbackString.Length - _fallbackIndex;
 
                 public override bool Fallback(byte[] bytesUnknown, int index)
                 {
-                    _fallbackString = Encoding.ASCII.GetString(bytesUnknown.Select(b => (byte)( b & 127)).ToArray());
+                    _fallbackString = ASCII.GetString(bytesUnknown.Select(b => (byte) (b & 127)).ToArray());
                     _fallbackIndex = 0;
 
                     return true;
@@ -145,13 +131,8 @@ namespace Rnwood.SmtpServer
                 public override char GetNextChar()
                 {
                     if (Remaining > 0)
-                    {
                         return _fallbackString[_fallbackIndex++];
-                    }
-                    else
-                    {
-                        return '\0';
-                    }
+                    return '\0';
                 }
 
                 public override bool MovePrevious()

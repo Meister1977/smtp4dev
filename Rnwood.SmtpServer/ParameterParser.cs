@@ -23,20 +23,17 @@ namespace Rnwood.SmtpServer
             Parse(ParameterText.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries));
         }
 
-        public Parameter[] Parameters
-        {
-            get { return _parameters.ToArray(); }
-        }
+        public Parameter[] Parameters => _parameters.ToArray();
 
-        public string ParameterText { get; private set; }
+        public string ParameterText { get; }
 
         private void Parse(string[] tokens)
         {
-            foreach (string token in tokens)
+            foreach (var token in tokens)
             {
-                string[] tokenParts = token.Split(new[] {'='}, 2, StringSplitOptions.RemoveEmptyEntries);
-                string key = tokenParts[0];
-                string value = tokenParts.Length > 1 ? tokenParts[1] : null;
+                var tokenParts = token.Split(new[] {'='}, 2, StringSplitOptions.RemoveEmptyEntries);
+                var key = tokenParts[0];
+                var value = tokenParts.Length > 1 ? tokenParts[1] : null;
                 _parameters.Add(new Parameter(key, value));
             }
         }
@@ -50,7 +47,7 @@ namespace Rnwood.SmtpServer
             Value = value;
         }
 
-        public string Name { get; private set; }
-        public string Value { get; private set; }
+        public string Name { get; }
+        public string Value { get; }
     }
 }

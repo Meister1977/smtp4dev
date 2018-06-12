@@ -133,18 +133,6 @@ namespace Rnwood.Smtp4dev.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
-        public int MaxMessages {
-            get {
-                return ((int)(this["MaxMessages"]));
-            }
-            set {
-                this["MaxMessages"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool EnableSSL {
             get {
@@ -236,18 +224,6 @@ namespace Rnwood.Smtp4dev.Properties {
             }
             set {
                 this["MaximumMessageSize"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.0.0.0")]
-        public string IPAddress {
-            get {
-                return ((string)(this["IPAddress"]));
-            }
-            set {
-                this["IPAddress"] = value;
             }
         }
         
@@ -386,6 +362,30 @@ namespace Rnwood.Smtp4dev.Properties {
             }
             set {
                 this["SSLCertificatePassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int MaxMessages {
+            get {
+                return ((int)(this["MaxMessages"]));
+            }
+            set {
+                this["MaxMessages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        public string IPAddress {
+            get {
+                return ((string)(this["IPAddress"]));
+            }
+            set {
+                this["IPAddress"] = value;
             }
         }
     }

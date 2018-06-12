@@ -11,20 +11,14 @@ namespace Rnwood.SmtpServer.Extensions.Auth
     {
         #region IAuthMechanism Members
 
-        public string Identifier
-        {
-            get { return "CRAM-MD5"; }
-        }
+        public string Identifier => "CRAM-MD5";
 
         public IAuthMechanismProcessor CreateAuthMechanismProcessor(IConnection connection)
         {
             return new CramMd5MechanismProcessor(connection);
         }
 
-        public bool IsPlainText
-        {
-            get { return false; }
-        }
+        public bool IsPlainText => false;
 
         #endregion
     }
@@ -42,60 +36,6 @@ namespace Rnwood.SmtpServer.Extensions.Auth
 
         protected IConnection Connection { get; set; }
 
-        #region IAuthMechanismProcessor Members
-
-        public AuthMechanismProcessorStatus ProcessResponse(string data)
-        {
-            if (_challenge == null)
-            {
-                StringBuilder challenge = new StringBuilder();
-                challenge.Append(_random.Next(Int16.MaxValue));
-                challenge.Append(".");
-                challenge.Append(DateTime.Now.Ticks.ToString());
-                challenge.Append("@");
-                challenge.Append(Connection.Server.Behaviour.DomainName);
-                _challenge = challenge.ToString();
-
-                string base64Challenge = Convert.ToBase64String(Encoding.ASCII.GetBytes(challenge.ToString()));
-                Connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.AuthenticationContinue,
-                                                                   base64Challenge));
-                return AuthMechanismProcessorStatus.Continue;
-            }
-            else
-            {
-                string response = DecodeBase64(data);
-                string[] responseparts = response.Split(' ');
-
-                if (responseparts.Length != 2)
-                {
-                    throw new SmtpServerException(new SmtpResponse(StandardSmtpResponseCode.AuthenticationFailure,
-                                                                   "Response in incorrect format - should be USERNAME RESPONSE"));
-                }
-
-                string username = responseparts[0];
-                string hash = responseparts[1];
-
-                Credentials = new CramMd5AuthenticationRequest(username, _challenge, hash);
-
-                AuthenticationResult result =
-                    Connection.Server.Behaviour.ValidateAuthenticationCredentials(Connection, Credentials);
-
-                switch (result)
-                {
-                    case AuthenticationResult.Success:
-                        return AuthMechanismProcessorStatus.Success;
-                        break;
-                    default:
-                        return AuthMechanismProcessorStatus.Failed;
-                        break;
-                }
-            }
-        }
-
-        public IAuthenticationRequest Credentials { get; private set; }
-
-        #endregion
-
         private static string DecodeBase64(string data)
         {
             try
@@ -105,7 +45,7 @@ namespace Rnwood.SmtpServer.Extensions.Auth
             catch (FormatException)
             {
                 throw new SmtpServerException(new SmtpResponse(StandardSmtpResponseCode.AuthenticationFailure,
-                                                               "Bad Base64 data"));
+                    "Bad Base64 data"));
             }
         }
 
@@ -116,6 +56,56 @@ namespace Rnwood.SmtpServer.Extensions.Auth
             Initial,
             AwaitingResponse
         }
+
+        #endregion
+
+        #region IAuthMechanismProcessor Members
+
+        public AuthMechanismProcessorStatus ProcessResponse(string data)
+        {
+            if (_challenge == null)
+            {
+                var challenge = new StringBuilder();
+                challenge.Append(_random.Next(short.MaxValue));
+                challenge.Append(".");
+                challenge.Append(DateTime.Now.Ticks.ToString());
+                challenge.Append("@");
+                challenge.Append(Connection.Server.Behaviour.DomainName);
+                _challenge = challenge.ToString();
+
+                var base64Challenge = Convert.ToBase64String(Encoding.ASCII.GetBytes(challenge.ToString()));
+                Connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.AuthenticationContinue,
+                    base64Challenge));
+                return AuthMechanismProcessorStatus.Continue;
+            }
+
+            var response = DecodeBase64(data);
+            var responseparts = response.Split(' ');
+
+            if (responseparts.Length != 2)
+                throw new SmtpServerException(new SmtpResponse(StandardSmtpResponseCode.AuthenticationFailure,
+                    "Response in incorrect format - should be USERNAME RESPONSE"));
+
+            var username = responseparts[0];
+            var hash = responseparts[1];
+
+            Credentials = new CramMd5AuthenticationRequest(username, _challenge, hash);
+
+            var result =
+                Connection.Server.Behaviour.ValidateAuthenticationCredentials(Connection, Credentials);
+
+            switch (result)
+            {
+                case AuthenticationResult.Success:
+                    return AuthMechanismProcessorStatus.Success;
+                    break;
+                default:
+                    return AuthMechanismProcessorStatus.Failed;
+                    break;
+            }
+        }
+
+        public IAuthenticationRequest Credentials { get; private set; }
 
         #endregion
     }

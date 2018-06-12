@@ -11,20 +11,14 @@ namespace Rnwood.SmtpServer.Extensions.Auth
     {
         #region IAuthMechanism Members
 
-        public string Identifier
-        {
-            get { return "PLAIN"; }
-        }
+        public string Identifier => "PLAIN";
 
         public IAuthMechanismProcessor CreateAuthMechanismProcessor(IConnection connection)
         {
             return new PlainMechanismProcessor(connection);
         }
 
-        public bool IsPlainText
-        {
-            get { return true; }
-        }
+        public bool IsPlainText => true;
 
         #endregion
     }
@@ -46,9 +40,22 @@ namespace Rnwood.SmtpServer.Extensions.Auth
             Connection = connection;
         }
 
-        protected IConnection Connection { get; private set; }
+        protected IConnection Connection { get; }
 
         private States State { get; set; }
+
+        private static string DecodeBase64(string data)
+        {
+            try
+            {
+                return Encoding.ASCII.GetString(Convert.FromBase64String(data ?? ""));
+            }
+            catch (FormatException)
+            {
+                throw new SmtpServerException(new SmtpResponse(StandardSmtpResponseCode.AuthenticationFailure,
+                    "Bad Base64 data"));
+            }
+        }
 
         #region IAuthMechanismProcessor Members
 
@@ -57,31 +64,27 @@ namespace Rnwood.SmtpServer.Extensions.Auth
             if (string.IsNullOrEmpty(data))
             {
                 if (State == States.AwaitingResponse)
-                {
                     throw new SmtpServerException(new SmtpResponse(StandardSmtpResponseCode.AuthenticationFailure,
-                                                                   "Missing auth data"));
-                }
+                        "Missing auth data"));
 
                 Connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.AuthenticationContinue, ""));
                 State = States.AwaitingResponse;
                 return AuthMechanismProcessorStatus.Continue;
             }
 
-            string decodedData = DecodeBase64(data);
-            string[] decodedDataParts = decodedData.Split('\0');
+            var decodedData = DecodeBase64(data);
+            var decodedDataParts = decodedData.Split('\0');
 
             if (decodedDataParts.Length != 3)
-            {
                 throw new SmtpServerException(new SmtpResponse(StandardSmtpResponseCode.AuthenticationFailure,
-                                                               "Auth data in incorrect format"));
-            }
+                    "Auth data in incorrect format"));
 
-            string username = decodedDataParts[1];
-            string password = decodedDataParts[2];
+            var username = decodedDataParts[1];
+            var password = decodedDataParts[2];
 
             Credentials = new UsernameAndPasswordAuthenticationRequest(username, password);
 
-            AuthenticationResult result =
+            var result =
                 Connection.Server.Behaviour.ValidateAuthenticationCredentials(Connection, Credentials);
             switch (result)
             {
@@ -97,18 +100,5 @@ namespace Rnwood.SmtpServer.Extensions.Auth
         public IAuthenticationRequest Credentials { get; private set; }
 
         #endregion
-
-        private static string DecodeBase64(string data)
-        {
-            try
-            {
-                return Encoding.ASCII.GetString(Convert.FromBase64String(data ?? ""));
-            }
-            catch (FormatException)
-            {
-                throw new SmtpServerException(new SmtpResponse(StandardSmtpResponseCode.AuthenticationFailure,
-                                                               "Bad Base64 data"));
-            }
-        }
     }
 }

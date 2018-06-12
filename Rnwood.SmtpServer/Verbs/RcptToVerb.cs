@@ -14,20 +14,21 @@ namespace Rnwood.SmtpServer
             if (connection.CurrentMessage == null)
             {
                 connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.BadSequenceOfCommands,
-                                                                   "No current message"));
+                    "No current message"));
                 return;
             }
 
             if (command.ArgumentsText == "<>" || !command.ArgumentsText.StartsWith("<") ||
-                !command.ArgumentsText.EndsWith(">") || command.ArgumentsText.Count(c => c == '<') != command.ArgumentsText.Count(c => c == '>'))
+                !command.ArgumentsText.EndsWith(">") || command.ArgumentsText.Count(c => c == '<') !=
+                command.ArgumentsText.Count(c => c == '>'))
             {
                 connection.WriteResponse(
                     new SmtpResponse(StandardSmtpResponseCode.SyntaxErrorInCommandArguments,
-                                     "Must specify to address <address>"));
+                        "Must specify to address <address>"));
                 return;
             }
 
-            string address = command.ArgumentsText.Remove(0, 1).Remove(command.ArgumentsText.Length - 2);
+            var address = command.ArgumentsText.Remove(0, 1).Remove(command.ArgumentsText.Length - 2);
             connection.Server.Behaviour.OnMessageRecipientAdding(connection, connection.CurrentMessage, address);
             connection.CurrentMessage.ToList.Add(address);
             connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.OK, "Recipient accepted"));

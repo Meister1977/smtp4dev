@@ -16,13 +16,6 @@ namespace Rnwood.SmtpServer
 {
     public class Connection : IConnection
     {
-
-
-        public Encoding ReaderEncoding
-        {
-            get; private set;
-        }
-
         private readonly TcpClient _tcpClient;
         private StreamReader _reader;
 
@@ -32,11 +25,11 @@ namespace Rnwood.SmtpServer
         public Connection(Server server, TcpClient tcpClient)
         {
             VerbMap = new VerbMap();
-            Session = new Session()
-                          {
-                              ClientAddress = ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address,
-                              StartDate = DateTime.Now
-                          };
+            Session = new Session
+            {
+                ClientAddress = ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address,
+                StartDate = DateTime.Now
+            };
 
             Server = server;
             _tcpClient = tcpClient;
@@ -50,91 +43,8 @@ namespace Rnwood.SmtpServer
             SetupVerbs();
         }
 
-        #region IConnectionProcessor Members
 
-        public IServer Server { get; private set; }
-
-        public void SetReaderEncoding(Encoding encoding)
-        {
-            SetupReaderAndWriter();
-        }
-
-        public void SetReaderEncodingToDefault()
-        {
-            SetReaderEncoding(new ASCIISevenBitTruncatingEncoding());
-        }
-
-        public IExtensionProcessor[] ExtensionProcessors { get; private set; }
-
-        public void CloseConnection()
-        {
-            _writer.Flush();
-            _tcpClient.Close();
-        }
-
-        public VerbMap VerbMap { get; private set; }
-
-        public void ApplyStreamFilter(Func<Stream, Stream> filter)
-        {
-            _stream = filter(_stream);
-            SetupReaderAndWriter();
-        }
-
-        public MailVerb MailVerb
-        {
-            get { return (MailVerb) VerbMap.GetVerbProcessor("MAIL"); }
-        }
-
-        public void WriteLine(string text, params object[] arg)
-        {
-            string formattedText = string.Format(text, arg);
-            Session.AppendToLog(formattedText);
-            _writer.WriteLine(formattedText);
-        }
-
-        public void WriteResponse(SmtpResponse response)
-        {
-            WriteLine(response.ToString().TrimEnd());
-        }
-
-        public string ReadLine()
-        {
-            string text = _reader.ReadLine();
-
-            if (text == null)
-            {
-                throw new IOException("Client disconnected");
-            }
-
-            Session.AppendToLog(text);
-            return text;
-        }
-
-        public ISession Session { get; private set; }
-
-        public Message CurrentMessage { get; private set; }
-
-        public Message NewMessage()
-        {
-            CurrentMessage = new Message(Session);
-            return CurrentMessage;
-        }
-
-        public void CommitMessage()
-        {
-            Message message = CurrentMessage;
-            Session.Messages.Add(message);
-            CurrentMessage = null;
-
-            Server.Behaviour.OnMessageReceived(this, message);
-        }
-
-        public void AbortMessage()
-        {
-            CurrentMessage = null;
-        }
-
-        #endregion
+        public Encoding ReaderEncoding { get; }
 
         private void SetupReaderAndWriter()
         {
@@ -165,7 +75,7 @@ namespace Rnwood.SmtpServer
 
                 if (Server.Behaviour.IsSSLEnabled(this))
                 {
-                    SslStream sslStream = new SslStream(_stream);
+                    var sslStream = new SslStream(_stream);
                     sslStream.AuthenticateAsServer(Server.Behaviour.GetSSLCertificate(this));
                     Session.SecureConnection = true;
                     _stream = sslStream;
@@ -173,19 +83,18 @@ namespace Rnwood.SmtpServer
                 }
 
                 WriteResponse(new SmtpResponse(StandardSmtpResponseCode.ServiceReady,
-                                               Server.Behaviour.DomainName + " smtp4dev ready"));
+                    Server.Behaviour.DomainName + " smtp4dev ready"));
 
                 while (_tcpClient.Client.Connected)
                 {
-                    SmtpCommand command = new SmtpCommand(ReadLine());
+                    var command = new SmtpCommand(ReadLine());
                     Server.Behaviour.OnCommandReceived(this, command);
 
                     if (command.IsValid)
                     {
-                        IVerb verbProcessor = VerbMap.GetVerbProcessor(command.Verb);
+                        var verbProcessor = VerbMap.GetVerbProcessor(command.Verb);
 
                         if (verbProcessor != null)
-                        {
                             try
                             {
                                 verbProcessor.Process(this, command);
@@ -194,12 +103,9 @@ namespace Rnwood.SmtpServer
                             {
                                 WriteResponse(exception.SmtpResponse);
                             }
-                        }
                         else
-                        {
                             WriteResponse(new SmtpResponse(StandardSmtpResponseCode.SyntaxErrorCommandUnrecognised,
-                                                           "Command unrecognised"));
-                        }
+                                "Command unrecognised"));
                     }
                     else if (command.IsEmpty)
                     {
@@ -207,7 +113,7 @@ namespace Rnwood.SmtpServer
                     else
                     {
                         WriteResponse(new SmtpResponse(StandardSmtpResponseCode.SyntaxErrorCommandUnrecognised,
-                                                       "Command unrecognised"));
+                            "Command unrecognised"));
                     }
                 }
             }
@@ -221,5 +127,85 @@ namespace Rnwood.SmtpServer
             Session.EndDate = DateTime.Now;
             Server.Behaviour.OnSessionCompleted(this, Session);
         }
+
+        #region IConnectionProcessor Members
+
+        public IServer Server { get; }
+
+        public void SetReaderEncoding(Encoding encoding)
+        {
+            SetupReaderAndWriter();
+        }
+
+        public void SetReaderEncodingToDefault()
+        {
+            SetReaderEncoding(new ASCIISevenBitTruncatingEncoding());
+        }
+
+        public IExtensionProcessor[] ExtensionProcessors { get; private set; }
+
+        public void CloseConnection()
+        {
+            _writer.Flush();
+            _tcpClient.Close();
+        }
+
+        public VerbMap VerbMap { get; }
+
+        public void ApplyStreamFilter(Func<Stream, Stream> filter)
+        {
+            _stream = filter(_stream);
+            SetupReaderAndWriter();
+        }
+
+        public MailVerb MailVerb => (MailVerb) VerbMap.GetVerbProcessor("MAIL");
+
+        public void WriteLine(string text, params object[] arg)
+        {
+            var formattedText = string.Format(text, arg);
+            Session.AppendToLog(formattedText);
+            _writer.WriteLine(formattedText);
+        }
+
+        public void WriteResponse(SmtpResponse response)
+        {
+            WriteLine(response.ToString().TrimEnd());
+        }
+
+        public string ReadLine()
+        {
+            var text = _reader.ReadLine();
+
+            if (text == null) throw new IOException("Client disconnected");
+
+            Session.AppendToLog(text);
+            return text;
+        }
+
+        public ISession Session { get; }
+
+        public Message CurrentMessage { get; private set; }
+
+        public Message NewMessage()
+        {
+            CurrentMessage = new Message(Session);
+            return CurrentMessage;
+        }
+
+        public void CommitMessage()
+        {
+            var message = CurrentMessage;
+            Session.Messages.Add(message);
+            CurrentMessage = null;
+
+            Server.Behaviour.OnMessageReceived(this, message);
+        }
+
+        public void AbortMessage()
+        {
+            CurrentMessage = null;
+        }
+
+        #endregion
     }
 }

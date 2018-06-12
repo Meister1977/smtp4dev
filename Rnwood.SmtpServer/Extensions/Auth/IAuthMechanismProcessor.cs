@@ -2,11 +2,8 @@
 {
     public interface IAuthMechanismProcessor
     {
-        AuthMechanismProcessorStatus ProcessResponse(string data);
+        IAuthenticationRequest Credentials { get; }
 
-        IAuthenticationRequest Credentials
-        {
-            get;
-        }
+        AuthMechanismProcessorStatus ProcessResponse(string data);
     }
 }

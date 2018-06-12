@@ -6,7 +6,6 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Rnwood.SmtpServer.Extensions;
 using Rnwood.SmtpServer.Extensions.Auth;
-using System.Linq;
 
 #endregion
 
@@ -37,27 +36,26 @@ namespace Rnwood.SmtpServer
             _sslCertificate = sslCertificate;
         }
 
+        public event EventHandler<MessageEventArgs> MessageCompleted;
+        public event EventHandler<MessageEventArgs> MessageReceived;
+        public event EventHandler<SessionEventArgs> SessionCompleted;
+        public event EventHandler<SessionEventArgs> SessionStarted;
+
+        public event EventHandler<AuthenticationCredentialsValidationEventArgs>
+            AuthenticationCredentialsValidationRequired;
+
         #region IServerBehaviour Members
 
         public virtual void OnMessageReceived(IConnection connection, Message message)
         {
-            if (MessageReceived != null)
-            {
-                MessageReceived(this, new MessageEventArgs(message));
-            }
+            if (MessageReceived != null) MessageReceived(this, new MessageEventArgs(message));
         }
 
-        public virtual string DomainName
-        {
-            get { return Environment.MachineName; }
-        }
+        public virtual string DomainName => Environment.MachineName;
 
-        public virtual IPAddress IpAddress
-        {
-            get { return IPAddress.Any; }
-        }
+        public virtual IPAddress IpAddress => IPAddress.Any;
 
-        public virtual int PortNumber { get; private set; }
+        public virtual int PortNumber { get; }
 
         public bool IsSSLEnabled(IConnection connection)
         {
@@ -85,44 +83,34 @@ namespace Rnwood.SmtpServer
 
         public virtual IEnumerable<IExtension> GetExtensions(IConnection connection)
         {
-            List<IExtension> extensions = new List<IExtension>(new IExtension[] { new EightBitMimeExtension(), new SizeExtension() });
+            var extensions = new List<IExtension>(new IExtension[] {new EightBitMimeExtension(), new SizeExtension()});
 
-            if (_sslCertificate != null)
-            {
-                extensions.Add(new StartTlsExtension());
-            }
+            if (_sslCertificate != null) extensions.Add(new StartTlsExtension());
 
             return extensions;
         }
 
         public virtual void OnSessionCompleted(IConnection connection, ISession session)
         {
-            if (SessionCompleted != null)
-            {
-                SessionCompleted(this, new SessionEventArgs(session));
-            }
+            if (SessionCompleted != null) SessionCompleted(this, new SessionEventArgs(session));
         }
 
         public void OnSessionStarted(IConnection connection, ISession session)
         {
-            if (SessionStarted != null)
-            {
-                SessionStarted(this, new SessionEventArgs(session));
-            }
+            if (SessionStarted != null) SessionStarted(this, new SessionEventArgs(session));
         }
 
         public virtual int GetReceiveTimeout(IConnection connection)
         {
-            return (int)new TimeSpan(0, 5, 0).TotalMilliseconds;
+            return (int) new TimeSpan(0, 5, 0).TotalMilliseconds;
         }
 
         public virtual AuthenticationResult ValidateAuthenticationCredentials(IConnection connection,
-                                                                          IAuthenticationRequest request)
+            IAuthenticationRequest request)
         {
             if (AuthenticationCredentialsValidationRequired != null)
-            {
-                AuthenticationCredentialsValidationRequired(this, new AuthenticationCredentialsValidationEventArgs(request));
-            }
+                AuthenticationCredentialsValidationRequired(this,
+                    new AuthenticationCredentialsValidationEventArgs(request));
 
             return AuthenticationResult.Failure;
         }
@@ -148,19 +136,10 @@ namespace Rnwood.SmtpServer
 
         public virtual void OnMessageCompleted(IConnection connection)
         {
-            if (MessageCompleted != null)
-            {
-                MessageCompleted(this, new MessageEventArgs(connection.CurrentMessage));
-            }
+            if (MessageCompleted != null) MessageCompleted(this, new MessageEventArgs(connection.CurrentMessage));
         }
 
         #endregion
-
-        public event EventHandler<MessageEventArgs> MessageCompleted;
-        public event EventHandler<MessageEventArgs> MessageReceived;
-        public event EventHandler<SessionEventArgs> SessionCompleted;
-        public event EventHandler<SessionEventArgs> SessionStarted;
-        public event EventHandler<AuthenticationCredentialsValidationEventArgs> AuthenticationCredentialsValidationRequired;
     }
 
     public class AuthenticationCredentialsValidationEventArgs : EventArgs
@@ -170,7 +149,7 @@ namespace Rnwood.SmtpServer
             Credentials = credentials;
         }
 
-        public IAuthenticationRequest Credentials { get; private set; }
+        public IAuthenticationRequest Credentials { get; }
 
         public AuthenticationResult AuthenticationResult { get; set; }
     }
@@ -182,7 +161,7 @@ namespace Rnwood.SmtpServer
             Message = message;
         }
 
-        public Message Message { get; private set; }
+        public Message Message { get; }
     }
 
     public class SessionEventArgs : EventArgs
@@ -192,6 +171,6 @@ namespace Rnwood.SmtpServer
             Session = session;
         }
 
-        public ISession Session { get; private set; }
+        public ISession Session { get; }
     }
 }

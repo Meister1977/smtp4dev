@@ -19,6 +19,6 @@ namespace Rnwood.SmtpServer
             SmtpResponse = smtpResponse;
         }
 
-        public SmtpResponse SmtpResponse { get; private set; }
+        public SmtpResponse SmtpResponse { get; }
     }
 }

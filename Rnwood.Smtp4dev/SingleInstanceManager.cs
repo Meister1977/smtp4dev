@@ -18,14 +18,13 @@ namespace Rnwood.Smtp4dev
         {
             ApplicationId = applicationId;
 
-            bool firstInstance;
-            _mutex = new Mutex(true, ApplicationId, out firstInstance);
+            _mutex = new Mutex(true, ApplicationId, out var firstInstance);
             IsFirstInstance = firstInstance;
         }
 
-        public bool IsFirstInstance { get; private set; }
+        public bool IsFirstInstance { get; }
 
-        public string ApplicationId { get; private set; }
+        public string ApplicationId { get; }
 
         #region IFirstInstanceServer Members
 
@@ -38,17 +37,14 @@ namespace Rnwood.Smtp4dev
 
         public void SendLaunchInfoToFirstInstance(LaunchInfo launchInfo)
         {
-            if (IsFirstInstance)
-            {
-                throw new InvalidOperationException();
-            }
+            if (IsFirstInstance) throw new InvalidOperationException();
 
-            IpcClientChannel channel = new IpcClientChannel(ApplicationId, null);
+            var channel = new IpcClientChannel(ApplicationId, null);
             ChannelServices.RegisterChannel(channel);
 
-            IFirstInstanceServer server =
+            var server =
                 (IFirstInstanceServer)
-                Activator.GetObject(typeof (IFirstInstanceServer), string.Format("ipc://{0}/{0}", ApplicationId));
+                Activator.GetObject(typeof(IFirstInstanceServer), string.Format("ipc://{0}/{0}", ApplicationId));
             server.ProcessLaunchInfo(launchInfo);
         }
 
@@ -61,23 +57,17 @@ namespace Rnwood.Smtp4dev
 
         public void ListenForLaunches()
         {
-            if (!IsFirstInstance)
-            {
-                throw new InvalidOperationException();
-            }
+            if (!IsFirstInstance) throw new InvalidOperationException();
 
-            IpcServerChannel channel = new IpcServerChannel(ApplicationId);
+            var channel = new IpcServerChannel(ApplicationId);
             ChannelServices.RegisterChannel(channel);
 
-            RemotingServices.Marshal(this, ApplicationId, typeof (IFirstInstanceServer));
+            RemotingServices.Marshal(this, ApplicationId, typeof(IFirstInstanceServer));
         }
 
         protected virtual void OnLaunchInfoReceived(LaunchInfo launchInfo)
         {
-            if (LaunchInfoReceived != null)
-            {
-                LaunchInfoReceived(this, new LaunchInfoReceivedEventArgs(launchInfo));
-            }
+            if (LaunchInfoReceived != null) LaunchInfoReceived(this, new LaunchInfoReceivedEventArgs(launchInfo));
         }
     }
 
@@ -93,7 +83,7 @@ namespace Rnwood.Smtp4dev
             LaunchInfo = launchInfo;
         }
 
-        public LaunchInfo LaunchInfo { get; private set; }
+        public LaunchInfo LaunchInfo { get; }
     }
 
     [Serializable]
@@ -105,7 +95,7 @@ namespace Rnwood.Smtp4dev
             Arguments = arguments;
         }
 
-        public string WorkingDirectory { get; private set; }
-        public string[] Arguments { get; private set; }
+        public string WorkingDirectory { get; }
+        public string[] Arguments { get; }
     }
 }

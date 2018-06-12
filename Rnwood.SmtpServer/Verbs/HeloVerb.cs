@@ -13,7 +13,7 @@ namespace Rnwood.SmtpServer
             if (!string.IsNullOrEmpty(connection.Session.ClientName))
             {
                 connection.WriteResponse(new SmtpResponse(StandardSmtpResponseCode.BadSequenceOfCommands,
-                                                                   "You already said HELO"));
+                    "You already said HELO"));
                 return;
             }
 

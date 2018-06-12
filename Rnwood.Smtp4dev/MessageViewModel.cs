@@ -2,8 +2,8 @@
 
 using System;
 using System.IO;
-using Rnwood.SmtpServer;
 using anmar.SharpMimeTools;
+using Rnwood.SmtpServer;
 
 #endregion
 
@@ -11,42 +11,28 @@ namespace Rnwood.Smtp4dev
 {
     public class MessageViewModel
     {
+        private SharpMimeMessage _contents;
+
         public MessageViewModel(Message message)
         {
             Message = message;
         }
 
-        public Message Message { get; private set; }
+        public Message Message { get; }
 
-        public string From
-        {
-            get { return Message.From; }
-        }
+        public string From => Message.From;
 
-        public string To
-        {
-            get { return string.Join(", ", Message.To); }
-        }
+        public string To => string.Join(", ", Message.To);
 
-        public DateTime ReceivedDate
-        {
-            get { return Message.ReceivedDate; }
-        }
+        public DateTime ReceivedDate => Message.ReceivedDate;
 
-        public string Subject
-        {
-            get { return SharpMimeTools.rfc2047decode(Parts.Header.Subject); }
-        }
+        public string Subject => SharpMimeTools.rfc2047decode(Parts.Header.Subject);
 
-        private SharpMimeMessage _contents;
         public SharpMimeMessage Parts
         {
             get
             {
-                if (_contents == null)
-                {
-                    _contents = new SharpMimeMessage(Message.GetData());
-                }
+                if (_contents == null) _contents = new SharpMimeMessage(Message.GetData());
 
                 return _contents;
             }
@@ -58,17 +44,15 @@ namespace Rnwood.Smtp4dev
         {
             HasBeenViewed = true;
 
-            byte[] data = new byte[64 * 1024];
+            var data = new byte[64 * 1024];
             int bytesRead;
 
-            using (Stream dataStream = Message.GetData(false))
+            using (var dataStream = Message.GetData(false))
             {
-                using (FileStream fileStream = file.OpenWrite())
+                using (var fileStream = file.OpenWrite())
                 {
                     while ((bytesRead = dataStream.Read(data, 0, data.Length)) > 0)
-                    {
                         fileStream.Write(data, 0, bytesRead);
-                    }
                 }
             }
         }

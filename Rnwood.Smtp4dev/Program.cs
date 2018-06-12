@@ -11,7 +11,7 @@ namespace Rnwood.Smtp4dev
     internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
         private static void Main(string[] args)
@@ -26,7 +26,7 @@ namespace Rnwood.Smtp4dev
                 Settings.Default.Save();
             }
 
-            MainForm form = new MainForm();
+            var form = new MainForm();
             Application.Run(form);
         }
     }

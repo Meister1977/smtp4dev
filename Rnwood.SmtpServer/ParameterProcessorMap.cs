@@ -36,20 +36,16 @@ namespace Rnwood.SmtpServer
 
         public void Process(ParameterParser parameters, bool throwOnUnknownParameter)
         {
-            foreach (Parameter parameter in parameters.Parameters)
+            foreach (var parameter in parameters.Parameters)
             {
-                IParameterProcessor parameterProcessor = GetProcessor(parameter.Name);
+                var parameterProcessor = GetProcessor(parameter.Name);
 
                 if (parameterProcessor != null)
-                {
                     parameterProcessor.SetParameter(parameter.Name, parameter.Value);
-                }
                 else if (throwOnUnknownParameter)
-                {
                     throw new SmtpServerException(
                         new SmtpResponse(StandardSmtpResponseCode.SyntaxErrorInCommandArguments,
-                                         "Parameter {0} is not recognised", parameter.Name));
-                }
+                            "Parameter {0} is not recognised", parameter.Name));
             }
         }
     }

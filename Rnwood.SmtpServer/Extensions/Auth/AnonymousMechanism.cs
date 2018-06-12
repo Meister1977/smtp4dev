@@ -4,20 +4,14 @@
     {
         #region IAuthMechanism Members
 
-        public string Identifier
-        {
-            get { return "ANONYMOUS"; }
-        }
+        public string Identifier => "ANONYMOUS";
 
         public IAuthMechanismProcessor CreateAuthMechanismProcessor(IConnection connection)
         {
             return new AnonymousMechanismProcessor(connection);
         }
 
-        public bool IsPlainText
-        {
-            get { return false; }
-        }
+        public bool IsPlainText => false;
 
         #endregion
     }
@@ -29,7 +23,7 @@
             Connection = connection;
         }
 
-        protected IConnection Connection { get; private set; }
+        protected IConnection Connection { get; }
 
         #region IAuthMechanismProcessor Members
 
@@ -37,8 +31,8 @@
         {
             Credentials = new AnonymousAuthenticationRequest();
 
-            AuthenticationResult result =
-    Connection.Server.Behaviour.ValidateAuthenticationCredentials(Connection, Credentials);
+            var result =
+                Connection.Server.Behaviour.ValidateAuthenticationCredentials(Connection, Credentials);
 
             switch (result)
             {
@@ -51,11 +45,7 @@
             }
         }
 
-        public IAuthenticationRequest Credentials
-        {
-            get;
-            private set;
-        }
+        public IAuthenticationRequest Credentials { get; private set; }
 
         #endregion
     }
